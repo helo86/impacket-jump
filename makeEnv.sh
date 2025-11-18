@@ -39,40 +39,6 @@ if [ "$MAJOR" -lt 3 ] || ([ "$MAJOR" -eq 3 ] && [ "$MINOR" -lt 10 ]); then
     exit 1
 fi
 
-# Check if git is installed
-if ! command -v git &> /dev/null; then
-    echo -e "${RED}[!] Git is not installed!${NC}"
-    echo -e "${YELLOW}[*] Install git first: sudo apt install git${NC}"
-    exit 1
-fi
-
-# Clone repository if not already cloned
-if [ ! -d "impacket-jump" ]; then
-    echo -e "${YELLOW}[*] Cloning impacket-jump repository...${NC}"
-    git clone "$REPO_URL"
-    
-    if [ ! -d "impacket-jump" ]; then
-        echo -e "${RED}[!] Failed to clone repository${NC}"
-        exit 1
-    fi
-    
-    echo -e "${GREEN}[+] Repository cloned successfully${NC}"
-else
-    echo -e "${YELLOW}[*] Repository already exists${NC}"
-    read -p "Update repository? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}[*] Updating repository...${NC}"
-        cd impacket-jump
-        git pull
-        cd ..
-        echo -e "${GREEN}[+] Repository updated${NC}"
-    fi
-fi
-
-# Navigate to repository
-cd impacket-jump
-
 # Check if virtual environment already exists
 if [ -d "$VENV_DIR" ]; then
     echo -e "${YELLOW}[*] Virtual environment already exists${NC}"
@@ -90,11 +56,7 @@ if [ -d "$VENV_DIR" ]; then
         echo -e "\n${CYAN}================================================${NC}"
         echo -e "${GREEN}[+] Setup complete!${NC}"
         echo -e "${CYAN}================================================${NC}\n"
-        
-        echo -e "${YELLOW}Usage examples:${NC}"
-        echo -e "${GREEN}python impacket-jump.py DOMAIN/user:'Pass!'@10.0.0.15 -file payload.exe -service-name JumpSvc -create${NC}"
-        echo -e "${GREEN}python impacket-jump.py DOMAIN/user:'Pass!'@10.0.0.15 -service-name JumpSvc -start${NC}\n"
-        
+
         exec $SHELL
     fi
 fi
@@ -150,31 +112,10 @@ echo -e "  ${GREEN}deactivate${NC}\n"
 
 echo -e "${CYAN}Usage Examples:${NC}"
 echo -e "${GREEN}# Create service (upload binary)${NC}"
-echo -e "python impacket-jump.py DOMAIN/user:'Passw0rd!'@10.0.0.15 \\"
-echo -e "  -file payload.exe \\"
-echo -e "  -service-name JumpSvc \\"
-echo -e "  -service-display-name \"Jump Loader\" \\"
-echo -e "  -service-description \"Managed via Impacket\" \\"
-echo -e "  -share-path \"C\$\\\\Program Files\\\\Custom\" \\"
-echo -e "  -create\n"
+echo -e "python impacket-jump.py DOMAIN/user:'Passw0rd!'@10.0.0.15 -file payload.exe -service-name JumpSvc -service-display-name \"Jump Loader\" -service-description \"Managed via Impacket\" -share-path \"C\$\\\\Program Files\\\\Custom\" -create\n"
 
 echo -e "${GREEN}# Start service${NC}"
 echo -e "python impacket-jump.py DOMAIN/user:'Passw0rd!'@10.0.0.15 -service-name JumpSvc -start\n"
-
-echo -e "${GREEN}# Stop service${NC}"
-echo -e "python impacket-jump.py DOMAIN/user:'Passw0rd!'@10.0.0.15 -service-name JumpSvc -stop\n"
-
-echo -e "${GREEN}# Delete service${NC}"
-echo -e "python impacket-jump.py DOMAIN/user:'Passw0rd!'@10.0.0.15 -service-name JumpSvc -delete\n"
-
-echo -e "${GREEN}# Cleanup (delete service and remove binary)${NC}"
-echo -e "python impacket-jump.py DOMAIN/user:'Passw0rd!'@10.0.0.15 -service-name JumpSvc -cleanup\n"
-
-echo -e "${GREEN}# Get service info${NC}"
-echo -e "python impacket-jump.py DOMAIN/user:'Passw0rd!'@10.0.0.15 -service-name JumpSvc -info\n"
-
-echo -e "${GREEN}# With NTLM hash${NC}"
-echo -e "python impacket-jump.py DOMAIN/user@10.0.0.15 -hashes :ntlmhash -service-name JumpSvc -start\n"
 
 echo -e "${CYAN}Available Actions:${NC}"
 echo -e "  ${BLUE}-create${NC}       Upload and create service"
